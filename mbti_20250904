@@ -1,0 +1,1248 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBTI性格测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            width: 100%;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+        }
+
+        .intro {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .question-container {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .question-container.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background-color: #f5f5f5;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            background-color: #e9f7fe;
+            border-color: #2575fc;
+        }
+
+        .option.selected {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .option-label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        button {
+            background-color: #2575fc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #1a5bb8;
+        }
+
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .result-container {
+            display: none;
+            text-align: center;
+        }
+
+        .result-container.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        .mbti-type {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2575fc;
+            margin: 20px 0;
+        }
+
+        .description {
+            background-color: #f5f5f5;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .suggestions {
+            background-color: #e3f2fd;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .suggestions h3 {
+            color: #2575fc;
+            margin-bottom: 15px;
+        }
+
+        .suggestions ul {
+            padding-left: 20px;
+        }
+
+        .suggestions li {
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #2575fc;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>MBTI性格测试</h1>
+
+        <div class="intro" id="intro">
+            <p>欢迎参加MBTI性格测试！</p>
+            <p>请根据您的真实想法和行为选择最符合您的选项。</p>
+            <p>点击"开始测试"按钮开始测试。</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <div class="question-container" id="question1">
+            <div class="question">1. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 与他人相处时更加精力充沛
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 独处时精力充沛
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question2">
+            <div class="question">2. 当您做决定时，您更倾向于：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 行动之后再思考
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 思考之后再行动
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question3">
+            <div class="question">3. 您更喜欢：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 公共场合希望自己成为注意的焦点
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 公共场合尽量避免成为注意的焦点
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question4">
+            <div class="question">4. 您更喜欢：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 喜欢想到什么就分享出来
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 喜欢自己思考，不去随意表露
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question5">
+            <div class="question">5. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 擅长解读和了解，可以随意分享个人信息
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span>更愿意一个人呆着，或在自己喜欢的小群体中分享
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question6">
+            <div class="question">6. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 说的比听的多
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 听的比说的多
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question7">
+            <div class="question">7. 您更喜欢：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 心情不好的时候希望有人安慰自己
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 心情不好的时候喜欢一个人呆着
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question8">
+            <div class="question">8. 在社交场合中，您通常：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 社交中高度热情
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 社交中冷静应对
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question9">
+            <div class="question">9. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 反应快，喜欢快节奏
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 喜欢慢节奏，仔细考虑后再行动
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question10">
+            <div class="question">10. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 广度和深度，只能二选一的时候选广度
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 广度和深度，只能二选一的时候选深度
+                </div>
+            </div>
+        </div>
+        
+        <div class="question-container" id="question11">
+            <div class="question">11. 一般情况下，：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 别人的言行会促使我行动
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 只有我自己有想法了，我才会行动
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question12">
+            <div class="question">12. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 参加聚会我很容易投入，一般都最后才离开
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 参加聚会我经常感觉累，然后就想尽快回家
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question13">
+            <div class="question">13. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 有很多人的聚会形式吸引，喜欢外出
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 喜欢少数人的小型聚会，比如和朋友在家看电影
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question14">
+            <div class="question">14. 在社交场合中，您通常：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 聚会中很健谈，和大多数人都能聊到一起
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 聚会中比较安静，只和少数人能聊到一起
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question15">
+            <div class="question">15. 在社交场合中，您通常：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 在各种场合都能主动快速地结交到新朋友
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 一般通过被动和介绍的方式结交新朋友
+                </div>
+            </div>
+        </div>
+
+         <div class="question-container" id="question16">
+            <div class="question">16. 您更喜欢：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 希望有很多朋友，喜欢左右逢源的感觉
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 有几个要好的朋友就够了
+                </div>
+            </div>
+        </div>
+
+         <div class="question-container" id="question17">
+            <div class="question">17. 通常：</div>
+            <div class="options">
+                <div class="option" data-value="E">
+                    <span class="option-label">A:</span> 好朋友经常让我安静一点
+                </div>
+                <div class="option" data-value="I">
+                    <span class="option-label">B:</span> 好朋友经常让我嗨起来
+                </div>
+            </div>
+        </div>
+
+         <div class="question-container" id="question18">
+            <div class="question">18. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="S">
+                    <span class="option-label">A:</span> 看重并遵从确定的已经被证明的想法
+                </div>
+                <div class="option" data-value="N">
+                    <span class="option-label">B:</span> 看重灵感，喜欢创新
+                </div>
+            </div>
+        </div>
+
+         <div class="question-container" id="question19">
+            <div class="question">19. 在社交场合中，您通常：</div>
+            <div class="options">
+                <div class="option" data-value="S">
+                    <span class="option-label">A:</span> 在各种场合都能主动快速地结交到新朋友
+                </div>
+                <div class="option" data-value="N">
+                    <span class="option-label">B:</span> 一般通过被动和介绍的方式结交新朋友
+                </div>
+            </div>
+        </div>
+
+         <div class="question-container" id="question20">
+            <div class="question">20. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="S">
+                    <span class="option-label">A:</span> 更看重现实性和常识性
+                </div>
+                <div class="option" data-value="N">
+                    <span class="option-label">B:</span> 更看重想象力和独创力
+                </div>
+            </div>
+        </div>
+
+         <div class="question-container" id="question21">
+            <div class="question">21. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="S">
+                    <span class="option-label">A:</span> 喜欢练习和使用现有已知的技能
+                </div>
+                <div class="option" data-value="N">
+                    <span class="option-label">B:</span> 喜欢尝试和挑战新技能
+                </div>
+            </div>
+        </div>
+
+         <div class="question-container" id="question22">
+            <div class="question">22. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="S">
+                    <span class="option-label">A:</span> 留心具体的事物并喜欢细节描述
+                </div>
+                <div class="option" data-value="N">
+                    <span class="option-label">B:</span> 留心象征故事，喜欢隐喻和类比
+                </div>
+            </div>
+        </div>
+
+         <div class="question-container" id="question23">
+            <div class="question">23. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="S">
+                    <span class="option-label">A:</span> 着眼于现在的现实
+                </div>
+                <div class="option" data-value="N">
+                    <span class="option-label">B:</span> 着眼于未来
+                </div>
+            </div>
+        </div>
+
+         <div class="question-container" id="question24">
+            <div class="question">24. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="S">
+                    <span class="option-label">A:</span> 循序渐进地描述事情
+                </div>
+                <div class="option" data-value="N">
+                    <span class="option-label">B:</span> 以跳跃性的思维展现
+                </div>
+            </div>
+        </div>
+        
+         <div class="question-container" id="question25">
+            <div class="question">25. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="S">
+                    <span class="option-label">A:</span> 买东西要先研究参数先试用，买水果要先试吃
+                </div>
+                <div class="option" data-value="N">
+                    <span class="option-label">B:</span> 感觉到了就买，不需要这么麻烦
+                </div>
+            </div>
+        </div>
+        
+         <div class="question-container" id="question26">
+            <div class="question">26. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="S">
+                    <span class="option-label">A:</span> 通过观察细节得出结论
+                </div>
+                <div class="option" data-value="N">
+                    <span class="option-label">B:</span> 相信自己的直觉
+                </div>
+            </div>
+        </div>
+        
+         <div class="question-container" id="question27">
+            <div class="question">27. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="S">
+                    <span class="option-label">A:</span> 喜欢聊实际的东西，比如电脑参数、包包款式
+                </div>
+                <div class="option" data-value="N">
+                    <span class="option-label">B:</span> 喜欢聊未来和种种可能性，比如科技新发明
+                </div>
+            </div>
+        </div>
+        
+         <div class="question-container" id="question28">
+            <div class="question">28. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="S">
+                    <span class="option-label">A:</span> 了解一件事情先看具体细节
+                </div>
+                <div class="option" data-value="N">
+                    <span class="option-label">B:</span> 了解一件事情先看大局面
+                </div>
+            </div>
+        </div>
+        
+         <div class="question-container" id="question29">
+            <div class="question">29. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="S">
+                    <span class="option-label">A:</span> 选择活在确定的当下
+                </div>
+                <div class="option" data-value="N">
+                    <span class="option-label">B:</span> 对未来充满想象
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question30">
+            <div class="question">30. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="S">
+                    <span class="option-label">A:</span> 现有的关系没有被破坏，就不用理它
+                </div>
+                <div class="option" data-value="N">
+                    <span class="option-label">B:</span> 与人交往会去想未来的进步空间
+                </div>
+            </div>
+        </div>
+
+         <div class="question-container" id="question31">
+            <div class="question">31. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="S">
+                    <span class="option-label">A:</span> 约会前不想象，期待它自然发生
+                </div>
+                <div class="option" data-value="N">
+                    <span class="option-label">B:</span> 在约会前会想很多可能发生的事情
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question32">
+            <div class="question">32. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="T">
+                    <span class="option-label">A:</span> 擅长对问题进行客观分析，实事求是
+                </div>
+                <div class="option" data-value="F">
+                    <span class="option-label">B:</span> 擅长考虑行为对他人的影响
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question33">
+            <div class="question">33. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="T">
+                    <span class="option-label">A:</span> 对所有人一视同仁，重视公平公正
+                </div>
+                <div class="option" data-value="F">
+                    <span class="option-label">B:</span> 重视同情与和睦，必要时可以跳过规则以人为本
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question34">
+            <div class="question">34. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="T">
+                    <span class="option-label">A:</span> 容易发现缺点
+                </div>
+                <div class="option" data-value="F">
+                    <span class="option-label">B:</span> 容易理解别人，对缺点很包容
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question35">
+            <div class="question">35. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="T">
+                    <span class="option-label">A:</span> 严格要求、一切必须按照标准来办
+                </div>
+                <div class="option" data-value="F">
+                    <span class="option-label">B:</span> 注重感情、感情大于标准
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question36">
+            <div class="question">36. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="T">
+                    <span class="option-label">A:</span> 为人豪爽、直率、喜欢讲大实话
+                </div>
+                <div class="option" data-value="F">
+                    <span class="option-label">B:</span> 讲话委婉、不愿意伤害别人
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question37">
+            <div class="question">37. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="T">
+                    <span class="option-label">A:</span> 情感必须要符合逻辑
+                </div>
+                <div class="option" data-value="F">
+                    <span class="option-label">B:</span> 关系大于一切，为了感情可以不顾逻辑
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question38">
+            <div class="question">38. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="T">
+                    <span class="option-label">A:</span> 做事的动力是获得实实在在的好处
+                </div>
+                <div class="option" data-value="F">
+                    <span class="option-label">B:</span> 做事的动力是获得某些人的认同和欣赏
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question39">
+            <div class="question">39. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="T">
+                    <span class="option-label">A:</span> 不赞同朋友意见时会直接说出来，对错分明
+                </div>
+                <div class="option" data-value="F">
+                    <span class="option-label">B:</span> 不赞同朋友意见时会委婉暗示或回避
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question40">
+            <div class="question">40. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="T">
+                    <span class="option-label">A:</span> 朋友对自己的评价多是逻辑清晰，目标明确
+                </div>
+                <div class="option" data-value="F">
+                    <span class="option-label">B:</span> 朋友对自己的评价多是热情和细心
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question41">
+            <div class="question">41. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="T">
+                    <span class="option-label">A:</span> 觉得社交要有明确的目标
+                </div>
+                <div class="option" data-value="F">
+                    <span class="option-label">B:</span> 觉得社交开心和快乐最重要
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question42">
+            <div class="question">42. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="T">
+                    <span class="option-label">A:</span> 做决定的依据是逻辑能够讲得通
+                </div>
+                <div class="option" data-value="F">
+                    <span class="option-label">B:</span> 做决定时先依心意再看逻辑
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question43">
+            <div class="question">43. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="T">
+                    <span class="option-label">A:</span> 我更容易察觉到人们的言行是否符合逻辑
+                </div>
+                <div class="option" data-value="F">
+                    <span class="option-label">B:</span> 我更容易察觉到人们情感波动及是否需要支持
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question44">
+            <div class="question">44. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="T">
+                    <span class="option-label">A:</span> 分手后一旦下定决心，会摆脱情绪很快走出来
+                </div>
+                <div class="option" data-value="F">
+                    <span class="option-label">B:</span> 分手后容易深陷其中，很长一段时间才能走出来
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question45">
+            <div class="question">45. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="T">
+                    <span class="option-label">A:</span> 与人交往更看重客观和逻辑的交流
+                </div>
+                <div class="option" data-value="F">
+                    <span class="option-label">B:</span> 与人交往更看重情感的交流
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question46">
+            <div class="question">46. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="J">
+                    <span class="option-label">A:</span> 做了决定以后会感到快乐
+                </div>
+                <div class="option" data-value="P">
+                    <span class="option-label">B:</span> 为拥有很多选择而快乐
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question47">
+            <div class="question">47. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="J">
+                    <span class="option-label">A:</span> 有计划，先工作再玩
+                </div>
+                <div class="option" data-value="P">
+                    <span class="option-label">B:</span> 随心所欲，先玩再工作
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question48">
+            <div class="question">48. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="J">
+                    <span class="option-label">A:</span> 喜欢定目标，然后准时坚定地完成
+                </div>
+                <div class="option" data-value="P">
+                    <span class="option-label">B:</span> 随着新信息地获取，不断改变目标
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question49">
+            <div class="question">49. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="J">
+                    <span class="option-label">A:</span> 希望提前知道即将要去的环境情况
+                </div>
+                <div class="option" data-value="P">
+                    <span class="option-label">B:</span> 喜欢冒险，喜欢去未知的环境
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question50">
+            <div class="question">50. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="J">
+                    <span class="option-label">A:</span> 看重结果，重点在于完成任务
+                </div>
+                <div class="option" data-value="P">
+                    <span class="option-label">B:</span> 看重过程，如何去做比结果更重要
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question51">
+            <div class="question">51. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="J">
+                    <span class="option-label">A:</span> 定好时间就不更改，一定要在最后期限完成
+                </div>
+                <div class="option" data-value="P">
+                    <span class="option-label">B:</span> 可以根据情况更改约定和最后期限
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question52">
+            <div class="question">52. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="J">
+                    <span class="option-label">A:</span> 满足感来源于完成计划
+                </div>
+                <div class="option" data-value="P">
+                    <span class="option-label">B:</span> 满足感来源于计划的开始
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question53">
+            <div class="question">53. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="J">
+                    <span class="option-label">A:</span> 接到旅行邀请先检查自己的时间表
+                </div>
+                <div class="option" data-value="P">
+                    <span class="option-label">B:</span> 接到旅行邀请立即收拾行李准备出发
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question54">
+            <div class="question">54. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="J">
+                    <span class="option-label">A:</span> 严格控制时间，任何场合都不喜欢迟到
+                </div>
+                <div class="option" data-value="P">
+                    <span class="option-label">B:</span> 不是非常重要的场合允许自己迟到
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question55">
+            <div class="question">55. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="J">
+                    <span class="option-label">A:</span> 约会前做好一切安排，包括去哪里吃什么穿什么
+                </div>
+                <div class="option" data-value="P">
+                    <span class="option-label">B:</span> 喜欢随心所欲的约会，到了地方再选吃什么
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question56">
+            <div class="question">56. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="J">
+                    <span class="option-label">A:</span> 希望自己的生活是有计划的
+                </div>
+                <div class="option" data-value="P">
+                    <span class="option-label">B:</span> 希望自己的生活是弹性的、可随意更改的
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question57">
+            <div class="question">57. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="J">
+                    <span class="option-label">A:</span> 我喜欢下定决心做一件事并能成功做到的人
+                </div>
+                <div class="option" data-value="P">
+                    <span class="option-label">B:</span> 我喜欢随时都有多种选择方案并能随时改进的人
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container" id="question58">
+            <div class="question">58. 您通常：</div>
+            <div class="options">
+                <div class="option" data-value="J">
+                    <span class="option-label">A:</span> 我喜欢一个时间段只做一件事情
+                </div>
+                <div class="option" data-value="P">
+                    <span class="option-label">B:</span> 我喜欢同时做多个事情
+                </div>
+            </div>
+        </div>
+
+        <div class="result-container" id="result">
+            <h2>测试结果！</h2>
+            <div class="mbti-type" id="mbtiType"></div>
+            <div class="description" id="description"></div>
+            <div class="suggestions">
+                <h3>小建议：</h3>
+                <ul id="suggestions"></ul>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button id="prevBtn" onclick="goToPreviousQuestion()" disabled>上一题</button>
+            <button id="nextBtn" onclick="goToNextQuestion()" disabled>下一题</button>
+            <button id="startBtn" onclick="startTest()">开始测试</button>
+            <button id="restartBtn" onclick="restartTest()" style="display: none;">重新测试</button>
+        </div>
+    </div>
+
+    <script>
+        // 问题数据
+        const questions = [
+            { id: "question1", trait: "EI" },
+            { id: "question2", trait: "EI" },
+            { id: "question3", trait: "EI" },
+            { id: "question4", trait: "EI" },
+            { id: "question5", trait: "EI" },
+            { id: "question6", trait: "EI" },
+            { id: "question7", trait: "EI" },
+            { id: "question8", trait: "EI" },
+            { id: "question9", trait: "EI" },
+            { id: "question10", trait: "EI" },
+            { id: "question11", trait: "EI" },
+            { id: "question12", trait: "EI" },
+            { id: "question13", trait: "EI" },
+            { id: "question14", trait: "EI" },
+            { id: "question15", trait: "EI" },
+            { id: "question16", trait: "EI" },
+            { id: "question17", trait: "EI" },
+            { id: "question18", trait: "SN" },
+            { id: "question19", trait: "SN" },
+            { id: "question20", trait: "SN" },
+            { id: "question21", trait: "SN" },
+            { id: "question22", trait: "SN" },
+            { id: "question23", trait: "SN" },
+            { id: "question24", trait: "SN" },
+            { id: "question25", trait: "SN" },
+            { id: "question26", trait: "SN" },
+            { id: "question27", trait: "SN" },
+            { id: "question28", trait: "SN" },
+            { id: "question29", trait: "SN" },
+            { id: "question30", trait: "SN" },
+            { id: "question31", trait: "SN" },
+            { id: "question32", trait: "TF" },
+            { id: "question33", trait: "TF" },
+            { id: "question34", trait: "TF" },
+            { id: "question35", trait: "TF" },
+            { id: "question36", trait: "TF" },
+            { id: "question37", trait: "TF" },
+            { id: "question38", trait: "TF" },
+            { id: "question39", trait: "TF" },
+            { id: "question40", trait: "TF" },
+            { id: "question41", trait: "TF" },
+            { id: "question42", trait: "TF" },
+            { id: "question43", trait: "TF" },
+            { id: "question44", trait: "TF" },
+            { id: "question45", trait: "TF" },
+            { id: "question46", trait: "JP" },
+            { id: "question47", trait: "JP" },
+            { id: "question48", trait: "JP" },
+            { id: "question49", trait: "JP" },
+            { id: "question50", trait: "JP" },
+            { id: "question51", trait: "JP" },
+            { id: "question52", trait: "JP" },
+            { id: "question53", trait: "JP" },
+            { id: "question54", trait: "JP" },
+            { id: "question55", trait: "JP" },
+            { id: "question56", trait: "JP" },
+            { id: "question57", trait: "JP" },
+            { id: "question58", trait: "JP" }
+        ];
+
+        // 性格类型对应的选项
+        const options = [
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "E", "I",
+            "S", "N",
+            "S", "N",
+            "S", "N",
+            "S", "N",
+            "S", "N",
+            "S", "N",
+            "S", "N",
+            "S", "N",
+            "S", "N",
+            "S", "N",
+            "S", "N",
+            "S", "N",
+            "S", "N",
+            "S", "N",  
+            "T", "F",
+            "T", "F",
+            "T", "F",
+            "T", "F",
+            "T", "F",
+            "T", "F",
+            "T", "F",
+            "T", "F",
+            "T", "F",
+            "T", "F",
+            "T", "F",
+            "T", "F",
+            "T", "F",
+            "T", "F",
+            "J", "P",
+            "J", "P",
+            "J", "P",
+            "J", "P",
+            "J", "P",
+            "J", "P",
+            "J", "P",
+            "J", "P",
+            "J", "P",
+            "J", "P",
+            "J", "P",
+            "J", "P",
+            "J", "P",
+            "J", "P",
+            "J", "P",
+            
+        ];
+
+        // 性格类型描述
+        const descriptions = {
+            "ISTJ": "ISTJ - 务实主义者：您注重实际，有责任感，喜欢有条理的生活。",
+            "ISFJ": "ISFJ - 守护者：您温暖、体贴，重视和谐，乐于助人。",
+            "INFJ": "INFJ - 提倡者：您富有洞察力，理想主义，关心他人。",
+            "INTJ": "INTJ - 战略家：您有远见，独立思考，追求完美。",
+            "ISTP": "ISTP - 鉴赏家：您冷静、实际，善于解决问题，喜欢自由。",
+            "ISFP": "ISFP - 探险家：您敏感、随和，富有创造力，珍视当下。",
+            "INFP": "INFP - 调停者：您理想主义，富有同情心，追求真实。",
+            "INTP": "INTP - 思想家：您理性、好奇，喜欢分析和理论。",
+            "ESTP": "ESTP - 企业家：您活泼、实际，善于适应，喜欢冒险。",
+            "ESFP": "ESFP - 娱乐家：您热情、友善，活在当下，享受生活。",
+            "ENFP": "ENFP - 竞选者：您热情、富有想象力，充满可能性。",
+            "ENTP": "ENTP - 辩论家：您聪明、好奇，喜欢辩论和创新。",
+            "ESTJ": "ESTJ - 总经理：您果断、组织能力强，喜欢领导。",
+            "ESFJ": "ESFJ - 执政官：您热情、有同理心，喜欢合作。",
+            "ENFJ": "ENFJ - 主人公：您热情、有洞察力，善于激励他人。",
+            "ENTJ": "ENTJ - 指挥官：您自信、果断，有领导力，追求成就。"
+        };
+
+        // 初始化变量
+        let currentQuestion = 0;
+        let answers = {};
+
+        // 开始测试
+        function startTest() {
+            document.getElementById("intro").style.display = "none";
+            document.getElementById("startBtn").style.display = "none";
+            document.getElementById("question1").classList.add("active");
+            updateProgress();
+        }
+
+        // 更新进度条
+        function updateProgress() {
+            const progress = (currentQuestion / questions.length) * 100;
+            document.getElementById("progress").style.width = progress + "%";
+        }
+
+        // 选择选项
+        document.querySelectorAll(".option").forEach(option => {
+            option.addEventListener("click", function() {
+                // 移除同一问题中其他选项的选中状态
+                const questionContainer = this.closest(".question-container");
+                questionContainer.querySelectorAll(".option").forEach(opt => {
+                    opt.classList.remove("selected");
+                });
+
+                // 添加当前选项的选中状态
+                this.classList.add("selected");
+
+                // 保存答案
+                const questionId = questionContainer.id;
+                const value = this.getAttribute("data-value");
+                answers[questionId] = value;
+
+                // 启用下一题按钮
+                document.getElementById("nextBtn").disabled = false;
+            });
+        });
+
+        // 下一题
+        function goToNextQuestion() {
+            // 隐藏当前问题
+            document.getElementById(`question${currentQuestion + 1}`).classList.remove("active");
+
+            // 增加当前问题索引
+            currentQuestion++;
+
+            // 检查是否完成所有问题
+            if (currentQuestion >= questions.length) {
+                showResult();
+                return;
+            }
+
+            // 显示下一题
+            document.getElementById(`question${currentQuestion + 1}`).classList.add("active");
+
+            // 更新进度条
+            updateProgress();
+
+            // 更新按钮状态
+            document.getElementById("prevBtn").disabled = false;
+            if (currentQuestion === questions.length - 1) {
+                document.getElementById("nextBtn").textContent = "查看结果";
+            }
+        }
+
+        // 上一题
+        function goToPreviousQuestion() {
+            // 隐藏当前问题
+            document.getElementById(`question${currentQuestion + 1}`).classList.remove("active");
+
+            // 减少当前问题索引
+            currentQuestion--;
+
+            // 显示上一题
+            document.getElementById(`question${currentQuestion + 1}`).classList.add("active");
+
+            // 更新进度条
+            updateProgress();
+
+            // 更新按钮状态
+            document.getElementById("nextBtn").textContent = "下一题";
+            if (currentQuestion === 0) {
+                document.getElementById("prevBtn").disabled = true;
+            }
+        }
+
+        // 显示结果
+        function showResult() {
+            // 计算MBTI类型
+            let result = {
+                E: 0, I: 0,
+                S: 0, N: 0,
+                T: 0, F: 0,
+                J: 0, P: 0
+            };
+
+            // 统计答案
+            for (let questionId in answers) {
+                const question = questions.find(q => q.id === questionId);
+                const trait = question.trait;
+                const answer = answers[questionId];
+
+                result[answer]++;
+            }
+
+            // 确定MBTI类型
+            let mbtiType = "";
+            mbtiType += result.E > result.I ? "E" : "I";
+            mbtiType += result.S > result.N ? "S" : "N";
+            mbtiType += result.T > result.F ? "T" : "F";
+            mbtiType += result.J > result.P ? "J" : "P";
+
+            // 显示结果
+            document.getElementById("mbtiType").textContent = mbtiType;
+            document.getElementById("description").textContent = descriptions[mbtiType];
+
+            // 生成建议
+            let suggestions = [];
+            if (mbtiType[1] === "S") {
+                suggestions.push("尝试关注更多可能性和未来，有时跳出当前框架会有新发现。");
+            } else {
+                suggestions.push("尝试关注更多实际细节，将想法付诸实践会让您更有成就感。");
+            }
+
+            if (mbtiType[2] === "T") {
+                suggestions.push("在决策时适当考虑情感因素，这有助于改善人际关系。");
+            } else {
+                suggestions.push("在决策时适当加入逻辑分析，这有助于提高决策效率。");
+            }
+
+            // 显示建议
+            const suggestionsList = document.getElementById("suggestions");
+            suggestionsList.innerHTML = "";
+            suggestions.forEach(suggestion => {
+                const li = document.createElement("li");
+                li.textContent = suggestion;
+                suggestionsList.appendChild(li);
+            });
+
+            // 隐藏问题，显示结果
+            document.querySelectorAll(".question-container").forEach(q => {
+                q.style.display = "none";
+            });
+            document.getElementById("result").classList.add("active");
+
+            // 更新按钮
+            document.getElementById("nextBtn").style.display = "none";
+            document.getElementById("prevBtn").style.display = "none";
+            document.getElementById("restartBtn").style.display = "block";
+        }
+
+        // 重新测试
+        function restartTest() {
+            // 重置变量
+            currentQuestion = 0;
+            answers = {};
+
+            // 重置UI
+            document.querySelectorAll(".question-container").forEach(q => {
+                q.classList.remove("active");
+            });
+            document.querySelectorAll(".option").forEach(opt => {
+                opt.classList.remove("selected");
+            });
+
+            document.getElementById("intro").style.display = "block";
+            document.getElementById("result").classList.remove("active");
+            document.getElementById("startBtn").style.display = "inline-block";
+            document.getElementById("restartBtn").style.display = "none";
+            document.getElementById("nextBtn").style.display = "inline-block";
+            document.getElementById("nextBtn").textContent = "下一题";
+            document.getElementById("prevBtn").style.display = "inline-block";
+            document.getElementById("prevBtn").disabled = true;
+            document.getElementById("nextBtn").disabled = true;
+
+            // 更新进度条
+            updateProgress();
+        }
+    </script>
+</body>
+</html>
